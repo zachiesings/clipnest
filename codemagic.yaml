@@ -58,14 +58,18 @@ workflows:
           mkdir -p "$CM_BUILD_DIR/export"
           APP_PATH="$CM_BUILD_DIR/ClipNest.xcarchive/Products/Applications/ClipNest.app"
           echo "App path: $APP_PATH"
-          ls -la "$CM_BUILD_DIR/ClipNest.xcarchive/Products/Applications/" || true
-          INSTALLER_ID=$(security find-identity -v 2>/dev/null | grep -oE '3rd Party Mac Developer Installer: [^"]+' | head -1 || true)
-          if [ -z "$INSTALLER_ID" ]; then
-            INSTALLER_ID="3rd Party Mac Developer Installer: Makino Shii (M43PGXVJ7D)"
+          echo "=== identities (basic) ==="
+          security find-identity -v -p basic || true
+          echo "=== identities (codesigning) ==="
+          security find-identity -v -p codesigning || true
+          # Installer identities aren't listed under the codesigning policy; use -p basic and match by hash.
+          INSTALLER_HASH=$(security find-identity -v -p basic 2>/dev/null | grep -i "Installer" | head -1 | awk '{print $2}')
+          echo "Installer hash: $INSTALLER_HASH"
+          if [ -z "$INSTALLER_HASH" ]; then
+            echo "No installer identity in keychain"; exit 1
           fi
-          echo "Installer identity: $INSTALLER_ID"
           productbuild --component "$APP_PATH" /Applications \
-            --sign "$INSTALLER_ID" \
+            --sign "$INSTALLER_HASH" \
             "$CM_BUILD_DIR/export/ClipNest.pkg"
           echo "=== built pkg ==="
           ls -la "$CM_BUILD_DIR/export"
