@@ -57,7 +57,7 @@ struct HistoryView: View {
                 Image(systemName: "gearshape")
             }
             .buttonStyle(.borderless)
-            .help("Setelan")
+            .help("Settings")
         }
         .padding(.horizontal, 12).padding(.vertical, 10)
         .overlay(alignment: .bottom) { searchBar.offset(y: 38).padding(.horizontal, 12) }
@@ -68,10 +68,10 @@ struct HistoryView: View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
             if model.pro.isPro {
-                TextField("Cari riwayat…", text: $query)
+                TextField("Search history…", text: $query)
                     .textFieldStyle(.plain)
             } else {
-                Text("Cari riwayat (Pro)")
+                Text("Search history (Pro)")
                     .foregroundStyle(.secondary)
                 Spacer()
                 Image(systemName: "lock.fill").font(.caption).foregroundStyle(theme.accent)
@@ -101,7 +101,7 @@ struct HistoryView: View {
                 }
                 Spacer(minLength: 4)
                 if copiedID == item.id {
-                    Text("Disalin ✓").font(.caption2).foregroundStyle(theme.accent)
+                    Text("Copied ✓").font(.caption2).foregroundStyle(theme.accent)
                 }
                 pinButton(item)
                 deleteButton(item)
@@ -138,7 +138,7 @@ struct HistoryView: View {
                 .foregroundStyle(item.pinned ? theme.accent : .secondary)
         }
         .buttonStyle(.borderless)
-        .help(model.pro.isPro ? "Sematkan" : "Sematkan (Pro)")
+        .help(model.pro.isPro ? "Pin" : "Pin (Pro)")
     }
 
     private func deleteButton(_ item: ClipItem) -> some View {
@@ -146,27 +146,27 @@ struct HistoryView: View {
             Image(systemName: "xmark").font(.system(size: 10)).foregroundStyle(.secondary)
         }
         .buttonStyle(.borderless)
-        .help("Hapus")
+        .help("Delete")
     }
 
     // MARK: footer
     private var footer: some View {
         HStack {
-            Text("\(model.history.items.count) item")
+            Text("\(model.history.items.count) items")
                 .font(.caption).foregroundStyle(.secondary)
             if !model.pro.isPro {
-                Text("· maks \(model.history.freeLimit)")
+                Text("· max \(model.history.freeLimit)")
                     .font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
             if !model.pro.isPro {
                 Button { showPaywall = true } label: {
-                    Label("Upgrade ke Pro", systemImage: "crown.fill").font(.caption.bold())
+                    Label("Upgrade to Pro", systemImage: "crown.fill").font(.caption.bold())
                 }
                 .buttonStyle(.borderless)
                 .foregroundStyle(theme.accent)
             } else {
-                Button("Bersihkan") { model.history.clearUnpinned() }
+                Button("Clear") { model.history.clearUnpinned() }
                     .buttonStyle(.borderless).font(.caption)
             }
         }
@@ -177,8 +177,8 @@ struct HistoryView: View {
         VStack(spacing: 10) {
             Spacer()
             Image(systemName: "tray").font(.system(size: 40)).foregroundStyle(.secondary)
-            Text("Belum ada riwayat").font(.headline)
-            Text("Salin sesuatu (⌘C) dan akan muncul di sini.")
+            Text("No history yet").font(.headline)
+            Text("Copy something (⌘C) and it\u2019ll appear here.")
                 .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Spacer()
         }

@@ -52,7 +52,7 @@ final class ClipboardMonitor: ObservableObject {
         if let data = pb.data(forType: .png) ?? pb.data(forType: .tiff),
            let img = NSImage(data: data),
            let png = img.pngData() {
-            onNewItem?(ClipItem(kind: .image, text: "Gambar", imageData: png))
+            onNewItem?(ClipItem(kind: .image, text: "Image", imageData: png))
         }
     }
 }

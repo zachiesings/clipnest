@@ -7,10 +7,10 @@ struct SettingsView: View {
 
     var body: some View {
         TabView {
-            general.tabItem { Label("Umum", systemImage: "gearshape") }
-            appearance.tabItem { Label("Tampilan", systemImage: "paintpalette") }
+            general.tabItem { Label("General", systemImage: "gearshape") }
+            appearance.tabItem { Label("Appearance", systemImage: "paintpalette") }
             proTab.tabItem { Label("Pro", systemImage: "crown") }
-            about.tabItem { Label("Tentang", systemImage: "info.circle") }
+            about.tabItem { Label("About", systemImage: "info.circle") }
         }
         .frame(width: 460, height: 380)
         .sheet(isPresented: $showPaywall) { PaywallView().environmentObject(model) }
@@ -20,22 +20,22 @@ struct SettingsView: View {
     private var general: some View {
         Form {
             Section {
-                Toggle("Buka ClipNest saat login", isOn: $launchAtLogin)
+                Toggle("Open ClipNest at login", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { value in
                         LoginItem.setEnabled(value)
                         launchAtLogin = LoginItem.isEnabled
                     }
-                Toggle("Jeda perekaman clipboard", isOn: Binding(
+                Toggle("Pause clipboard capture", isOn: Binding(
                     get: { model.monitor.isPaused },
                     set: { model.monitor.isPaused = $0 }
                 ))
             } footer: {
-                Text("ClipNest hanya membaca clipboard untuk menyimpan riwayatmu — secara lokal. Tidak ada Accessibility atau pemantauan keyboard.")
+                Text("ClipNest only reads the clipboard to save your history — locally. No Accessibility and no keyboard monitoring.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Section("Pintasan") {
+            Section("Shortcut") {
                 HStack {
-                    Text("Buka ClipNest")
+                    Text("Open ClipNest")
                     Spacer()
                     Text("⌘⇧V").font(.system(.body, design: .monospaced)).foregroundStyle(.secondary)
                 }
@@ -55,10 +55,10 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 4)
             } header: {
-                Text("Tema")
+                Text("Theme")
             } footer: {
                 if !model.pro.isPro {
-                    Text("Tema selain Nest termasuk ClipNest Pro.").font(.caption).foregroundStyle(.secondary)
+                    Text("Themes other than Nest are part of ClipNest Pro.").font(.caption).foregroundStyle(.secondary)
                 }
             }
         }
@@ -95,17 +95,17 @@ struct SettingsView: View {
             Image(systemName: model.pro.isPro ? "crown.fill" : "crown")
                 .font(.system(size: 44)).foregroundStyle(model.settings.theme.accent)
             if model.pro.isPro {
-                Text("ClipNest Pro aktif 🎉").font(.title3.bold())
-                Text("Terima kasih sudah mendukung ClipNest!").foregroundStyle(.secondary)
+                Text("ClipNest Pro active 🎉").font(.title3.bold())
+                Text("Thanks for supporting ClipNest!").foregroundStyle(.secondary)
             } else {
                 Text("ClipNest Pro").font(.title3.bold())
-                Text("Riwayat tak terbatas, sematkan, pencarian, dan semua tema.")
+                Text("Unlimited history, pinning, search, and all themes.")
                     .multilineTextAlignment(.center).foregroundStyle(.secondary)
                 Button { showPaywall = true } label: {
-                    Text("Lihat ClipNest Pro").bold().frame(maxWidth: 220)
+                    Text("See ClipNest Pro").bold().frame(maxWidth: 220)
                 }.buttonStyle(.borderedProminent).tint(model.settings.theme.accent)
             }
-            Button("Pulihkan pembelian") { Task { await model.pro.restore() } }
+            Button("Restore purchase") { Task { await model.pro.restore() } }
                 .buttonStyle(.link)
             Spacer()
         }
@@ -119,14 +119,14 @@ struct SettingsView: View {
             Image(systemName: "doc.on.clipboard.fill")
                 .font(.system(size: 40)).foregroundStyle(model.settings.theme.accent)
             Text("ClipNest").font(.title2.bold())
-            Text("Versi \(Bundle.main.shortVersion) (\(Bundle.main.buildVersion))")
+            Text("Version \(Bundle.main.shortVersion) (\(Bundle.main.buildVersion))")
                 .font(.caption).foregroundStyle(.secondary)
-            Text("Pengelola clipboard yang ringan & privat. Semua riwayat tersimpan lokal di Mac-mu — tidak ada yang dikirim ke mana pun.")
+            Text("A lightweight, private clipboard manager. All history is stored locally on your Mac — nothing is ever sent anywhere.")
                 .font(.caption).multilineTextAlignment(.center).foregroundStyle(.secondary)
                 .padding(.horizontal)
             HStack(spacing: 16) {
-                Link("Privasi", destination: URL(string: "https://zachiesings.github.io/apps-support/clipnest-privacy.html")!)
-                Link("Dukungan", destination: URL(string: "https://zachiesings.github.io/apps-support/")!)
+                Link("Privacy", destination: URL(string: "https://zachiesings.github.io/apps-support/mac-privacy.html")!)
+                Link("Support", destination: URL(string: "https://zachiesings.github.io/apps-support/")!)
             }.font(.caption)
             Spacer()
         }

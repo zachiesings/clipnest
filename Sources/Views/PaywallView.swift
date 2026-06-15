@@ -7,10 +7,10 @@ struct PaywallView: View {
     private var theme: AppTheme { model.settings.theme }
 
     private let benefits: [(String, String, String)] = [
-        ("infinity", "Riwayat tak terbatas", "Simpan ribuan salinan, bukan cuma 25 terakhir"),
-        ("pin.fill", "Sematkan (pin)", "Kunci teks/tautan penting biar tak pernah hilang"),
-        ("magnifyingglass", "Pencarian cepat", "Temukan apa pun yang pernah kamu salin"),
-        ("paintpalette.fill", "Semua tema", "Midnight, Sakura, Forest, Mono & lainnya"),
+        ("infinity", "Unlimited history", "Keep thousands of copies, not just the last 25"),
+        ("pin.fill", "Pin items", "Lock important text and links so they never disappear"),
+        ("magnifyingglass", "Fast search", "Find anything you\u2019ve ever copied"),
+        ("paintpalette.fill", "All themes", "Midnight, Sakura, Forest, Mono & more"),
     ]
 
     var body: some View {
@@ -19,7 +19,7 @@ struct PaywallView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "crown.fill").font(.system(size: 40)).foregroundStyle(.white)
                     Text("ClipNest Pro").font(.title.bold()).foregroundStyle(.white)
-                    Text("Sekali bayar — buka semua, selamanya")
+                    Text("One-time purchase — unlock everything, forever")
                         .font(.subheadline).foregroundStyle(.white.opacity(0.9))
                 }
                 .frame(maxWidth: .infinity)
@@ -62,10 +62,10 @@ struct PaywallView: View {
                 .buttonStyle(.borderedProminent).tint(theme.accent).controlSize(.large)
                 .disabled(model.pro.purchasing)
 
-                Button("Pulihkan pembelian") { Task { await model.pro.restore(); if model.pro.isPro { dismiss() } } }
+                Button("Restore purchase") { Task { await model.pro.restore(); if model.pro.isPro { dismiss() } } }
                     .buttonStyle(.link).font(.caption)
 
-                Text("Pembayaran satu kali (non-langganan), ditagih ke akun App Store-mu.")
+                Text("One-time payment (non-subscription), billed to your App Store account.")
                     .font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }
             .padding(.horizontal, 20).padding(.bottom, 18)
@@ -75,6 +75,6 @@ struct PaywallView: View {
 
     private var buyLabel: String {
         let price = model.pro.priceText
-        return price.isEmpty ? "Buka ClipNest Pro" : "Buka Pro · \(price)"
+        return price.isEmpty ? "Unlock ClipNest Pro" : "Unlock Pro · \(price)"
     }
 }

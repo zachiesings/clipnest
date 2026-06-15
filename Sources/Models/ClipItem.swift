@@ -33,9 +33,9 @@ struct ClipItem: Identifiable, Codable, Equatable {
         switch kind {
         case .text:
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            return trimmed.isEmpty ? "(kosong)" : trimmed
+            return trimmed.isEmpty ? "(empty)" : trimmed
         case .image:
-            return "🖼 Gambar"
+            return "🖼 Image"
         }
     }
 
