@@ -9,7 +9,7 @@ struct PaywallView: View {
     private let benefits: [(String, String, String)] = [
         ("infinity", "Unlimited history", "Keep thousands of copies, not just the last 25"),
         ("pin.fill", "Pin items", "Lock important text and links so they never disappear"),
-        ("magnifyingglass", "Fast search", "Find anything you\u2019ve ever copied"),
+        ("magnifyingglass", "Fast search", "Find anything you've ever copied"),
         ("paintpalette.fill", "All themes", "Midnight, Sakura, Forest, Mono & more"),
     ]
 

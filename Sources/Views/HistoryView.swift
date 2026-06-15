@@ -178,7 +178,7 @@ struct HistoryView: View {
             Spacer()
             Image(systemName: "tray").font(.system(size: 40)).foregroundStyle(.secondary)
             Text("No history yet").font(.headline)
-            Text("Copy something (⌘C) and it\u2019ll appear here.")
+            Text("Copy something (⌘C) and it'll appear here.")
                 .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
             Spacer()
         }
