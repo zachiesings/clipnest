@@ -21,7 +21,7 @@ struct SettingsView: View {
         Form {
             Section {
                 Toggle("Buka ClipNest saat login", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, value in
+                    .onChange(of: launchAtLogin) { value in
                         LoginItem.setEnabled(value)
                         launchAtLogin = LoginItem.isEnabled
                     }

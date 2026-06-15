@@ -30,17 +30,21 @@ enum AppTheme: String, CaseIterable, Identifiable {
     var isProOnly: Bool { self != .nest }
 }
 
-/// Sumber kebenaran preferensi ringan (tema + hotkey + dll) via UserDefaults.
-final class Settings: ObservableObject {
-    static let shared = Settings()
+/// Preferensi ringan (tema, dll). Dinamai AppSettings agar tidak bentrok
+/// dengan scene `Settings` milik SwiftUI.
+final class AppSettings: ObservableObject {
+    static let shared = AppSettings()
 
-    @AppStorage("clipnest.theme") private var themeRaw = AppTheme.nest.rawValue
-    @Published var themeID: String = AppTheme.nest.rawValue
+    @Published var themeID: String {
+        didSet { UserDefaults.standard.set(themeID, forKey: "clipnest.theme") }
+    }
 
-    init() { themeID = themeRaw }
+    private init() {
+        themeID = UserDefaults.standard.string(forKey: "clipnest.theme") ?? AppTheme.nest.rawValue
+    }
 
     var theme: AppTheme {
         get { AppTheme(rawValue: themeID) ?? .nest }
-        set { themeID = newValue.rawValue; themeRaw = newValue.rawValue; objectWillChange.send() }
+        set { themeID = newValue.rawValue }
     }
 }

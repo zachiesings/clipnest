@@ -11,7 +11,7 @@ final class AppModel: ObservableObject {
     let history = HistoryStore()
     let pro = ProStore()
     let monitor = ClipboardMonitor()
-    let settings = Settings.shared
+    let settings = AppSettings.shared
 
     private var bag = Set<AnyCancellable>()
 
