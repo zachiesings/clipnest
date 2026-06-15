@@ -47,13 +47,15 @@ struct SettingsView: View {
     // MARK: Tampilan
     private var appearance: some View {
         Form {
-            Section("Tema") {
+            Section {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 12)], spacing: 12) {
                     ForEach(AppTheme.allCases) { t in
                         themeSwatch(t)
                     }
                 }
                 .padding(.vertical, 4)
+            } header: {
+                Text("Tema")
             } footer: {
                 if !model.pro.isPro {
                     Text("Tema selain Nest termasuk ClipNest Pro.").font(.caption).foregroundStyle(.secondary)
