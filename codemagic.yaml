@@ -56,7 +56,13 @@ workflows:
         script: |
           set -e
           echo "$INSTALLER_P12_BASE64" | base64 --decode > /tmp/installer.p12
-          keychain add-certificates --certificate /tmp/installer.p12 --certificate-password "$INSTALLER_P12_PASSWORD"
+          KEYCHAIN=$(ls -t "$HOME/Library/codemagic-cli-tools/keychains/"*.keychain-db 2>/dev/null | head -1)
+          echo "Using keychain: $KEYCHAIN"
+          security unlock-keychain -p "" "$KEYCHAIN" 2>/dev/null || true
+          security import /tmp/installer.p12 -k "$KEYCHAIN" -P "$INSTALLER_P12_PASSWORD" -A -T /usr/bin/productbuild -T /usr/bin/codesign || true
+          # Allow the installer key to be used by signing tools without a UI prompt.
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" "$KEYCHAIN" 2>/dev/null || \
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s "$KEYCHAIN" 2>/dev/null || true
 
       - name: Build signed installer .pkg (productbuild)
         script: |
