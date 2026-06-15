@@ -22,7 +22,6 @@ targets:
     platform: macOS
     sources:
       - path: Sources
-    resources:
       - path: Resources/Assets.xcassets
       - path: Resources/AppIcon.icns
     settings:
