@@ -52,32 +52,23 @@ workflows:
             CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
             archive
 
-      - name: Export .pkg for App Store
+      - name: Build signed installer .pkg (productbuild)
         script: |
           set -e
-          PROFILE_NAME=""
-          for PDIR in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles" "$CM_BUILD_DIR"; do
-            PF=$(ls -t "$PDIR"/*.provisionprofile "$PDIR"/*.mobileprovision 2>/dev/null | head -1 || true)
-            if [ -n "$PF" ]; then
-              PROFILE_NAME=$(security cms -D -i "$PF" | plutil -extract Name raw - 2>/dev/null || true)
-              [ -n "$PROFILE_NAME" ] && break
-            fi
-          done
-          if [ -z "$PROFILE_NAME" ]; then
-            PROFILE_NAME="ClipNest mac_app_store 1781486718"
+          mkdir -p "$CM_BUILD_DIR/export"
+          APP_PATH="$CM_BUILD_DIR/ClipNest.xcarchive/Products/Applications/ClipNest.app"
+          echo "App path: $APP_PATH"
+          ls -la "$CM_BUILD_DIR/ClipNest.xcarchive/Products/Applications/" || true
+          INSTALLER_ID=$(security find-identity -v 2>/dev/null | grep -oE '3rd Party Mac Developer Installer: [^"]+' | head -1 || true)
+          if [ -z "$INSTALLER_ID" ]; then
+            INSTALLER_ID="3rd Party Mac Developer Installer: Makino Shii (M43PGXVJ7D)"
           fi
-          echo "Provisioning profile name: $PROFILE_NAME"
-          PLIST="$CM_BUILD_DIR/ExportOptions.plist"
-          printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict/></plist>\n' > "$PLIST"
-          /usr/libexec/PlistBuddy -c "Add :method string app-store" "$PLIST"
-          /usr/libexec/PlistBuddy -c "Add :teamID string M43PGXVJ7D" "$PLIST"
-          /usr/libexec/PlistBuddy -c "Add :signingStyle string manual" "$PLIST"
-          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles dict" "$PLIST"
-          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:app.clipnest.ClipNest string $PROFILE_NAME" "$PLIST"
-          xcodebuild -exportArchive \
-            -archivePath "$CM_BUILD_DIR/ClipNest.xcarchive" \
-            -exportPath "$CM_BUILD_DIR/export" \
-            -exportOptionsPlist "$PLIST"
+          echo "Installer identity: $INSTALLER_ID"
+          productbuild --component "$APP_PATH" /Applications \
+            --sign "$INSTALLER_ID" \
+            "$CM_BUILD_DIR/export/ClipNest.pkg"
+          echo "=== built pkg ==="
+          ls -la "$CM_BUILD_DIR/export"
 
       - name: Upload to App Store Connect
         script: |
