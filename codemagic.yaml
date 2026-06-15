@@ -54,10 +54,23 @@ workflows:
 
       - name: Export .pkg for App Store
         script: |
+          set -e
+          PDIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          PROFILE_FILE=$(ls -t "$PDIR"/*.provisionprofile "$PDIR"/*.mobileprovision 2>/dev/null | head -1)
+          echo "Provisioning profile file: $PROFILE_FILE"
+          PROFILE_NAME=$(security cms -D -i "$PROFILE_FILE" | plutil -extract Name raw -)
+          echo "Provisioning profile name: $PROFILE_NAME"
+          PLIST="$CM_BUILD_DIR/ExportOptions.plist"
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict/></plist>\n' > "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :method string app-store" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :teamID string M43PGXVJ7D" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :signingStyle string manual" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles dict" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :provisioningProfiles:app.clipnest.ClipNest string $PROFILE_NAME" "$PLIST"
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/ClipNest.xcarchive" \
             -exportPath "$CM_BUILD_DIR/export" \
-            -exportOptionsPlist ExportOptions.plist
+            -exportOptionsPlist "$PLIST"
 
       - name: Upload to App Store Connect
         script: |
