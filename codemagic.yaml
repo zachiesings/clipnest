@@ -1,0 +1,77 @@
+# Build ClipNest (macOS) untuk Mac App Store di Codemagic.
+# Penandatanganan memakai App Store Connect API key (env vars: APP_STORE_CONNECT_*,
+# CERTIFICATE_PRIVATE_KEY) yang dikirim saat build dipicu lewat Codemagic API.
+
+workflows:
+  macos-appstore:
+    name: ClipNest macOS — App Store
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      vars:
+        BUNDLE_ID: "app.clipnest.ClipNest"
+        XCODE_PROJECT: "ClipNest.xcodeproj"
+        XCODE_SCHEME: "ClipNest"
+
+    scripts:
+      - name: Generate Xcode project (XcodeGen)
+        script: |
+          which xcodegen || brew install xcodegen
+          xcodegen generate
+
+      - name: Initialize keychain
+        script: keychain initialize
+
+      - name: Fetch Mac App Store signing files (create if needed)
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --platform MAC_OS \
+            --type MAC_APP_STORE \
+            --certificate-key "@env:CERTIFICATE_PRIVATE_KEY" \
+            --create
+
+      - name: Ensure Mac Installer Distribution certificate
+        script: |
+          app-store-connect certificates create \
+            --type MAC_INSTALLER_DISTRIBUTION \
+            --certificate-key "@env:CERTIFICATE_PRIVATE_KEY" \
+            --save || echo "Installer certificate already available for this key."
+
+      - name: Add certificates to keychain
+        script: keychain add-certificates
+
+      - name: Set up provisioning profiles
+        script: xcode-project use-profiles
+
+      - name: Archive (Release)
+        script: |
+          xcodebuild -project "$XCODE_PROJECT" -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -archivePath "$CM_BUILD_DIR/ClipNest.xcarchive" \
+            CURRENT_PROJECT_VERSION=$BUILD_NUMBER \
+            archive
+
+      - name: Export .pkg for App Store
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath "$CM_BUILD_DIR/ClipNest.xcarchive" \
+            -exportPath "$CM_BUILD_DIR/export" \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Upload to App Store Connect
+        script: |
+          app-store-connect publish \
+            --path "$CM_BUILD_DIR/export/*.pkg"
+
+    artifacts:
+      - $CM_BUILD_DIR/export/*.pkg
+      - $CM_BUILD_DIR/*.xcarchive
+
+    publishing:
+      email:
+        recipients:
+          - asd95179517@gmail.com
+        notify:
+          success: true
+          failure: true

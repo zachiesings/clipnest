@@ -1,0 +1,9 @@
+# XcodeGen generates this on build
+*.xcodeproj
+# Build output
+build/
+DerivedData/
+export/
+*.xcarchive
+# macOS
+.DS_Store
