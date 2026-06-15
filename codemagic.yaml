@@ -55,10 +55,17 @@ workflows:
       - name: Export .pkg for App Store
         script: |
           set -e
-          PDIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          PROFILE_FILE=$(ls -t "$PDIR"/*.provisionprofile "$PDIR"/*.mobileprovision 2>/dev/null | head -1)
-          echo "Provisioning profile file: $PROFILE_FILE"
-          PROFILE_NAME=$(security cms -D -i "$PROFILE_FILE" | plutil -extract Name raw -)
+          PROFILE_NAME=""
+          for PDIR in "$HOME/Library/MobileDevice/Provisioning Profiles" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles" "$CM_BUILD_DIR"; do
+            PF=$(ls -t "$PDIR"/*.provisionprofile "$PDIR"/*.mobileprovision 2>/dev/null | head -1 || true)
+            if [ -n "$PF" ]; then
+              PROFILE_NAME=$(security cms -D -i "$PF" | plutil -extract Name raw - 2>/dev/null || true)
+              [ -n "$PROFILE_NAME" ] && break
+            fi
+          done
+          if [ -z "$PROFILE_NAME" ]; then
+            PROFILE_NAME="ClipNest mac_app_store 1781486718"
+          fi
           echo "Provisioning profile name: $PROFILE_NAME"
           PLIST="$CM_BUILD_DIR/ExportOptions.plist"
           printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict/></plist>\n' > "$PLIST"
