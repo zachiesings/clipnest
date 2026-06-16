@@ -48,8 +48,12 @@ struct PaywallView: View {
             Spacer(minLength: 0)
 
             VStack(spacing: 8) {
-                if let err = model.pro.lastError {
-                    Text(err).font(.caption2).foregroundStyle(.red).lineLimit(2)
+                if let err = model.pro.lastError, model.pro.product != nil {
+                    Text(err).font(.caption2).foregroundStyle(.secondary).lineLimit(2)
+                }
+                if model.pro.product == nil {
+                    Text("In-App Purchases are temporarily unavailable. Please try again later.")
+                        .font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
                 }
                 Button {
                     Task { await model.pro.purchase(); if model.pro.isPro { dismiss() } }
@@ -60,7 +64,7 @@ struct PaywallView: View {
                     }.frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent).tint(theme.accent).controlSize(.large)
-                .disabled(model.pro.purchasing)
+                .disabled(model.pro.purchasing || model.pro.product == nil)
 
                 Button("Restore purchase") { Task { await model.pro.restore(); if model.pro.isPro { dismiss() } } }
                     .buttonStyle(.link).font(.caption)
